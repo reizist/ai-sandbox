@@ -1,0 +1,219 @@
+{
+  "mangaSeries": [
+    {
+      "name": "ジョジョの奇妙な冒険",
+      "description": "荒木飛呂彦による長編漫画シリーズ。波紋の力やスタンド能力を駆使して戦う奇妙な冒険を描く。",
+      "genres": ["少年漫画", "アドベンチャー", "バトル", "超能力"]
+    },
+    {
+      "name": "ワンピース",
+      "description": "尾田栄一郎による海賊をテーマにした冒険漫画。ゴムゴムの実の能力者ルフィが海賊王を目指す物語。",
+      "genres": ["少年漫画", "冒険", "バトル", "コメディ"]
+    },
+    {
+      "name": "進撃の巨人",
+      "description": "諫山創による巨人と人間の戦いを描いたダークファンタジー作品。",
+      "genres": ["少年漫画", "ダークファンタジー", "アクション", "サスペンス"]
+    }
+  ],
+  "manga": [
+    {
+      "seriesName": "ジョジョの奇妙な冒険",
+      "originalTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "englishTitle": "JoJo's Bizarre Adventure: Phantom Blood",
+      "japaneseTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "authors": [
+        {
+          "name": "荒木飛呂彦",
+          "role": "作者"
+        }
+      ],
+      "status": "completed",
+      "startDate": "1987-01-01",
+      "endDate": "1987-10-26",
+      "coverImage": "https://example.com/jojo-part1-cover.jpg"
+    },
+    {
+      "seriesName": "ジョジョの奇妙な冒険", 
+      "originalTitle": "ジョジョの奇妙な冒険 第2部 戦闘潮流",
+      "englishTitle": "JoJo's Bizarre Adventure: Battle Tendency",
+      "japaneseTitle": "ジョジョの奇妙な冒険 第2部 戦闘潮流",
+      "authors": [
+        {
+          "name": "荒木飛呂彦",
+          "role": "作者"
+        }
+      ],
+      "status": "completed",
+      "startDate": "1987-11-02",
+      "endDate": "1989-03-27",
+      "coverImage": "https://example.com/jojo-part2-cover.jpg"
+    },
+    {
+      "seriesName": "ワンピース",
+      "originalTitle": "ワンピース",
+      "englishTitle": "One Piece", 
+      "japaneseTitle": "ワンピース",
+      "authors": [
+        {
+          "name": "尾田栄一郎",
+          "role": "作者"
+        }
+      ],
+      "status": "ongoing",
+      "startDate": "1997-07-22",
+      "endDate": null,
+      "coverImage": "https://example.com/onepiece-cover.jpg"
+    },
+    {
+      "seriesName": "進撃の巨人",
+      "originalTitle": "進撃の巨人",
+      "englishTitle": "Attack on Titan",
+      "japaneseTitle": "進撃の巨人", 
+      "authors": [
+        {
+          "name": "諫山創",
+          "role": "作者"
+        }
+      ],
+      "status": "completed",
+      "startDate": "2009-09-09",
+      "endDate": "2021-04-09",
+      "coverImage": "https://example.com/aot-cover.jpg"
+    }
+  ],
+  "magazines": [
+    {
+      "name": "週刊少年ジャンプ",
+      "publisher": "集英社",
+      "frequency": "週刊"
+    },
+    {
+      "name": "別冊少年マガジン",
+      "publisher": "講談社", 
+      "frequency": "月刊"
+    }
+  ],
+  "episodes": [
+    {
+      "mangaTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "title": "プロローグ",
+      "episodeNumber": 1,
+      "magazineName": "週刊少年ジャンプ",
+      "issueNumber": "1987年1号",
+      "pageStart": 1,
+      "pageEnd": 19
+    },
+    {
+      "mangaTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "title": "石仮面の男",
+      "episodeNumber": 2,
+      "magazineName": "週刊少年ジャンプ",
+      "issueNumber": "1987年2号",
+      "pageStart": 1,
+      "pageEnd": 19
+    },
+    {
+      "mangaTitle": "ワンピース",
+      "title": "ROMANCE DAWN -冒険の夜明け-",
+      "episodeNumber": 1,
+      "magazineName": "週刊少年ジャンプ",
+      "issueNumber": "1997年34号",
+      "pageStart": 1,
+      "pageEnd": 19
+    },
+    {
+      "mangaTitle": "進撃の巨人",
+      "title": "二千年後の君へ",
+      "episodeNumber": 1,
+      "magazineName": "別冊少年マガジン",
+      "issueNumber": "2009年10月号",
+      "pageStart": 1,
+      "pageEnd": 45
+    }
+  ],
+  "magazineIssues": [
+    {
+      "magazineName": "週刊少年ジャンプ",
+      "issueNumber": "1987年1号",
+      "publicationDate": "1986-12-15",
+      "coverImage": "https://example.com/jump-1987-1.jpg"
+    },
+    {
+      "magazineName": "週刊少年ジャンプ", 
+      "issueNumber": "1987年2号",
+      "publicationDate": "1986-12-22",
+      "coverImage": "https://example.com/jump-1987-2.jpg"
+    },
+    {
+      "magazineName": "週刊少年ジャンプ",
+      "issueNumber": "1997年34号", 
+      "publicationDate": "1997-07-19",
+      "coverImage": "https://example.com/jump-1997-34.jpg"
+    },
+    {
+      "magazineName": "別冊少年マガジン",
+      "issueNumber": "2009年10月号",
+      "publicationDate": "2009-09-09",
+      "coverImage": "https://example.com/betsumaga-2009-10.jpg"
+    }
+  ],
+  "tankobonVolumes": [
+    {
+      "mangaTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "volumeNumber": 1,
+      "title": "第1巻 侵略者ディオ",
+      "isbn": "9784088511511",
+      "publicationDate": "1987-08-10",
+      "price": 390,
+      "coverImage": "https://example.com/jojo-part1-vol1.jpg"
+    },
+    {
+      "mangaTitle": "ワンピース",
+      "volumeNumber": 1,
+      "title": "第1巻 ROMANCE DAWN -冒険の夜明け-",
+      "isbn": "9784088725093",
+      "publicationDate": "1997-12-24",
+      "price": 390,
+      "coverImage": "https://example.com/onepiece-vol1.jpg"
+    },
+    {
+      "mangaTitle": "進撃の巨人",
+      "volumeNumber": 1,
+      "title": "第1巻 その日",
+      "isbn": "9784063840016",
+      "publicationDate": "2010-03-17",
+      "price": 440,
+      "coverImage": "https://example.com/aot-vol1.jpg"
+    }
+  ],
+  "affiliateLinks": [
+    {
+      "mangaTitle": "ジョジョの奇妙な冒険 第1部 ファントムブラッド",
+      "volumeNumber": 1,
+      "platform": "Amazon",
+      "url": "https://amazon.co.jp/dp/B00DMFZR02",
+      "price": 408,
+      "currency": "JPY",
+      "isActive": true
+    },
+    {
+      "mangaTitle": "ワンピース",
+      "volumeNumber": 1,
+      "platform": "Amazon",
+      "url": "https://amazon.co.jp/dp/B009KX5C4I",
+      "price": 460,
+      "currency": "JPY",
+      "isActive": true
+    },
+    {
+      "mangaTitle": "進撃の巨人",
+      "volumeNumber": 1,
+      "platform": "BookWalker",
+      "url": "https://bookwalker.jp/de1234567",
+      "price": 440,
+      "currency": "JPY",
+      "isActive": true
+    }
+  ]
+}

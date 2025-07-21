@@ -1,0 +1,16 @@
+{
+  "feature": "manga-db",
+  "version": "1.0.0",
+  "created": "2025-07-21",
+  "status": "initialized",
+  "phases": {
+    "requirements": true,
+    "design": true,
+    "tasks": true
+  },
+  "metadata": {
+    "description": "Manga database web application specification",
+    "category": "web-application",
+    "priority": "high"
+  }
+}

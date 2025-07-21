@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 漫画シリーズ（例：ジョジョの奇妙な冒険）
+model MangaSeries {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  genres      Json     // JSON配列
+  
+  manga       Manga[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 漫画作品（例：第1部ファントムブラッド）
+model Manga {
+  id            String    @id @default(cuid())
+  seriesId      String?
+  originalTitle String
+  englishTitle  String?
+  japaneseTitle String?
+  authors       Json      // JSON配列
+  status        String    @default("ongoing")
+  startDate     DateTime?
+  endDate       DateTime?
+  coverImage    String?
+  
+  series        MangaSeries?    @relation(fields: [seriesId], references: [id])
+  episodes      Episode[]
+  volumes       TankobonVolume[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([seriesId])
+  @@index([status])
+  @@index([startDate])
+}
+
+// エピソード（個別の話）
+model Episode {
+  id              String    @id @default(cuid())
+  title           String
+  episodeNumber   Int
+  mangaId         String
+  magazineIssueId String?
+  tankobonVolumeId String?
+  pageStart       Int?
+  pageEnd         Int?
+  
+  manga           Manga          @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  magazineIssue   MagazineIssue? @relation(fields: [magazineIssueId], references: [id])
+  tankobonVolume  TankobonVolume? @relation(fields: [tankobonVolumeId], references: [id])
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([mangaId, episodeNumber])
+  @@index([magazineIssueId])
+  @@index([tankobonVolumeId])
+}
+
+// 雑誌（例：週刊少年ジャンプ）
+model Magazine {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  publisher String
+  frequency String   // 刊行頻度
+  
+  issues    MagazineIssue[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 雑誌号（例：2024年1号）
+model MagazineIssue {
+  id              String    @id @default(cuid())
+  magazineId      String
+  issueNumber     String
+  publicationDate DateTime
+  coverImage      String?
+  
+  magazine        Magazine  @relation(fields: [magazineId], references: [id], onDelete: Cascade)
+  episodes        Episode[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([magazineId, issueNumber])
+  @@index([publicationDate])
+}
+
+// 単行本巻（例：第1巻）
+model TankobonVolume {
+  id              String    @id @default(cuid())
+  mangaId         String
+  volumeNumber    Int
+  title           String
+  isbn            String?
+  publicationDate DateTime?
+  price           Decimal?
+  coverImage      String?
+  
+  manga           Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  episodes        Episode[]
+  affiliateLinks  AffiliateLink[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@unique([mangaId, volumeNumber])
+  @@index([publicationDate])
+}
+
+// アフィリエイトリンク
+model AffiliateLink {
+  id               String    @id @default(cuid())
+  tankobonVolumeId String
+  platform         String    // Amazon, BookWalker等
+  url              String
+  price            Decimal?
+  currency         String    @default("JPY")
+  isActive         Boolean   @default(true)
+  
+  tankobonVolume   TankobonVolume @relation(fields: [tankobonVolumeId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  @@index([tankobonVolumeId])
+  @@index([platform])
+}
