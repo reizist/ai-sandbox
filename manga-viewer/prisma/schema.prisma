@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./manga-viewer.db"
+}
+
+model MangaCollection {
+  id               String   @id @default(cuid())
+  title            String
+  originalFilename String   @map("original_filename")
+  fileHash         String   @unique @map("file_hash")
+  fileSize         Int      @map("file_size")
+  totalPages       Int      @map("total_pages")
+  pageFilenames    String   @map("page_filenames") // JSON array of filenames
+  coverImagePath   String?  @map("cover_image_path")
+  uploadDate       DateTime @default(now()) @map("upload_date")
+  lastReadDate     DateTime? @map("last_read_date")
+  lastPageRead     Int      @default(0) @map("last_page_read")
+  tags             String?  // JSON string
+  description      String?
+  
+  // Cloud storage fields
+  storageType      String   @default("s3") @map("storage_type")
+  storageMode      String   @default("zip") @map("storage_mode")
+  s3BucketName     String?  @map("s3_bucket_name")
+  s3KeyPrefix      String?  @map("s3_key_prefix")
+  zipS3Key         String?  @map("zip_s3_key")
+  thumbnailS3Key   String?  @map("thumbnail_s3_key")
+  isSynced         Boolean  @default(true) @map("is_synced")
+  lastSyncDate     DateTime? @map("last_sync_date")
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  readingSessions  ReadingSession[]
+
+  @@map("manga_collections")
+}
+
+model ReadingSession {
+  id               String   @id @default(cuid())
+  collectionId     String   @map("collection_id")
+  startTime        DateTime @default(now()) @map("start_time")
+  endTime          DateTime? @map("end_time")
+  startPage        Int      @map("start_page")
+  endPage          Int?     @map("end_page")
+  pagesRead        Int      @default(0) @map("pages_read")
+  sessionDuration  Int      @default(0) @map("session_duration") // seconds
+  deviceType       String?  @map("device_type")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  // Relations
+  collection       MangaCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@map("reading_sessions")
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  readingDirection    String   @default("ltr") @map("reading_direction")
+  autoPageTurn        Boolean  @default(false) @map("auto_page_turn")
+  pageTurnInterval    Int      @default(5000) @map("page_turn_interval")
+  fullscreenMode      Boolean  @default(true) @map("fullscreen_mode")
+  showPageNumbers     Boolean  @default(true) @map("show_page_numbers")
+  themePreference     String   @default("dark") @map("theme_preference")
+  zoomLevel           Float    @default(1.0) @map("zoom_level")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@map("user_preferences")
+}
