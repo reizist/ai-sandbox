@@ -1,0 +1,238 @@
+{
+  "series": "ワンピース",
+  "totalVolumes": 2,
+  "volumes": [
+    {
+      "isbn": "9784088725093",
+      "title": "One piece 巻1",
+      "originalTitle": "One piece 巻1",
+      "subtitle": "Romance dawn : 冒険の夜明け",
+      "volumeNumber": 1,
+      "authors": [
+        {
+          "name": "尾田栄一郎",
+          "role": "作者"
+        }
+      ],
+      "publisher": "集英社",
+      "series": "ジャンプ・コミックス",
+      "publicationDate": "199712",
+      "price": 390,
+      "rawData": {
+        "onix": {
+          "CollateralDetail": {
+            "TextContent": [
+              {
+                "TextType": "04",
+                "ContentAudience": "00",
+                "Text": "Romance dawn : 冒険の夜明け"
+              }
+            ]
+          },
+          "RecordReference": "9784088725093",
+          "NotificationType": "03",
+          "ProductIdentifier": {
+            "ProductIDType": "15",
+            "IDValue": "9784088725093"
+          },
+          "DescriptiveDetail": {
+            "TitleDetail": {
+              "TitleType": "01",
+              "TitleElement": {
+                "TitleElementLevel": "01",
+                "TitleText": {
+                  "collationkey": "One piece",
+                  "content": "One piece 巻1"
+                }
+              }
+            },
+            "Contributor": [
+              {
+                "SequenceNumber": "1",
+                "ContributorRole": [],
+                "PersonName": {
+                  "content": "尾田, 栄一郎, 1975-",
+                  "collationkey": "オダ, エイイチロウ"
+                }
+              }
+            ],
+            "Collection": {
+              "CollectionType": "10",
+              "TitleDetail": {
+                "TitleType": "01",
+                "TitleElement": [
+                  {
+                    "TitleElementLevel": "02",
+                    "PartNumber": "",
+                    "TitleText": {
+                      "collationkey": "",
+                      "content": "ジャンプ・コミックス"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "PublishingDetail": {
+            "Imprint": {
+              "ImprintName": "集英社"
+            },
+            "PublishingDate": [
+              {
+                "PublishingDateRole": "11",
+                "Date": "199712"
+              }
+            ]
+          },
+          "ProductSupply": {
+            "SupplyDetail": {
+              "ProductAvailability": "99",
+              "Price": [
+                {
+                  "PriceType": "01",
+                  "CurrencyCode": "JPY",
+                  "PriceAmount": "390"
+                }
+              ]
+            }
+          }
+        },
+        "hanmoto": {
+          "datecreated": "2015-08-20 04:50:38",
+          "reviews": [
+            {
+              "post_user": "genkina",
+              "reviewer": "",
+              "source_id": 18,
+              "kubun_id": 1,
+              "source": "朝日新聞",
+              "choyukan": "",
+              "han": "",
+              "link": "",
+              "appearance": "2011-12-25",
+              "gou": ""
+            }
+          ],
+          "dateshuppan": "1997-12",
+          "datemodified": "2015-08-20 04:50:38"
+        },
+        "summary": {
+          "isbn": "9784088725093",
+          "title": "One piece 巻1",
+          "volume": "",
+          "series": "ジャンプ・コミックス",
+          "publisher": "集英社",
+          "pubdate": "199712",
+          "cover": "",
+          "author": "尾田,栄一郎,1975-"
+        }
+      }
+    },
+    {
+      "isbn": "9784088725697",
+      "title": "One piece 巻3 (偽れぬもの)",
+      "originalTitle": "One piece 巻3 (偽れぬもの)",
+      "subtitle": "",
+      "volumeNumber": 3,
+      "authors": [
+        {
+          "name": "尾田栄一郎",
+          "role": "作者"
+        }
+      ],
+      "publisher": "集英社",
+      "series": "ジャンプ・コミックス",
+      "publicationDate": "199806",
+      "price": 390,
+      "rawData": {
+        "onix": {
+          "CollateralDetail": {},
+          "RecordReference": "9784088725697",
+          "NotificationType": "03",
+          "ProductIdentifier": {
+            "ProductIDType": "15",
+            "IDValue": "9784088725697"
+          },
+          "DescriptiveDetail": {
+            "TitleDetail": {
+              "TitleType": "01",
+              "TitleElement": {
+                "TitleElementLevel": "01",
+                "TitleText": {
+                  "collationkey": "One piece",
+                  "content": "One piece 巻3 (偽れぬもの)"
+                }
+              }
+            },
+            "Contributor": [
+              {
+                "SequenceNumber": "1",
+                "ContributorRole": [],
+                "PersonName": {
+                  "content": "尾田, 栄一郎, 1975-",
+                  "collationkey": "オダ, エイイチロウ"
+                }
+              }
+            ],
+            "Collection": {
+              "CollectionType": "10",
+              "TitleDetail": {
+                "TitleType": "01",
+                "TitleElement": [
+                  {
+                    "TitleElementLevel": "02",
+                    "PartNumber": "",
+                    "TitleText": {
+                      "collationkey": "",
+                      "content": "ジャンプ・コミックス"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "PublishingDetail": {
+            "Imprint": {
+              "ImprintName": "集英社"
+            },
+            "PublishingDate": [
+              {
+                "PublishingDateRole": "11",
+                "Date": "199806"
+              }
+            ]
+          },
+          "ProductSupply": {
+            "SupplyDetail": {
+              "ProductAvailability": "99",
+              "Price": [
+                {
+                  "PriceType": "01",
+                  "CurrencyCode": "JPY",
+                  "PriceAmount": "390"
+                }
+              ]
+            }
+          }
+        },
+        "hanmoto": {
+          "datecreated": "2016-07-20 12:00:51",
+          "dateshuppan": "1998-06",
+          "datemodified": "2016-07-20 12:00:51"
+        },
+        "summary": {
+          "isbn": "9784088725697",
+          "title": "One piece 巻3 (偽れぬもの)",
+          "volume": "",
+          "series": "ジャンプ・コミックス",
+          "publisher": "集英社",
+          "pubdate": "199806",
+          "cover": "",
+          "author": "尾田,栄一郎,1975-"
+        }
+      }
+    }
+  ],
+  "fetchedAt": "2025-07-21T19:13:09.692Z",
+  "source": "OpenBD API"
+}

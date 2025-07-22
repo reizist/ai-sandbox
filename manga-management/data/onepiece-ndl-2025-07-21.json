@@ -1,0 +1,29 @@
+{
+  "series": "ワンピース",
+  "totalVolumes": 0,
+  "volumes": [],
+  "searchConfigs": [
+    {
+      "query": "ワンピース",
+      "dpid": "iss-ndl-opac"
+    },
+    {
+      "query": "ONE PIECE",
+      "dpid": "iss-ndl-opac"
+    },
+    {
+      "query": "ワンピース",
+      "dpid": null
+    },
+    {
+      "query": "尾田栄一郎",
+      "dpid": null
+    },
+    {
+      "query": "one piece",
+      "dpid": null
+    }
+  ],
+  "fetchedAt": "2025-07-21T19:15:39.554Z",
+  "source": "National Diet Library Search API"
+}
