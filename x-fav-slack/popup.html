@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X to Slack Share Settings</title>
+  <link rel="stylesheet" href="dist/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>X to Slack Share</h1>
+      <p class="subtitle">Configure your Slack integration</p>
+    </header>
+
+    <main>
+      <div class="form-group">
+        <label for="webhook-url">
+          Slack Webhook URL
+          <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="webhook-url" 
+          placeholder="https://hooks.slack.com/services/..."
+          class="input-field"
+        />
+        <div class="help-text">
+          <a href="https://api.slack.com/messaging/webhooks" target="_blank" rel="noopener">
+            How to get a Webhook URL →
+          </a>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="channel">
+          Channel (Optional)
+        </label>
+        <input 
+          type="text" 
+          id="channel" 
+          placeholder="#general or @username"
+          class="input-field"
+        />
+        <div class="help-text">
+          Leave empty to use the webhook's default channel
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="save-btn" class="btn btn-primary">Save Settings</button>
+        <button id="test-btn" class="btn btn-secondary">Test Connection</button>
+      </div>
+
+      <div id="status-message" class="status-message"></div>
+    </main>
+
+    <footer>
+      <div class="footer-links">
+        <a href="https://github.com/yourusername/x-to-slack-share" target="_blank" rel="noopener">
+          GitHub
+        </a>
+        <span class="separator">•</span>
+        <a href="https://github.com/yourusername/x-to-slack-share/issues" target="_blank" rel="noopener">
+          Report Issue
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="dist/popup.js"></script>
+</body>
+</html>

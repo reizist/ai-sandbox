@@ -1,0 +1,55 @@
+.x-to-slack-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 50%;
+}
+
+.x-to-slack-share-btn:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+
+.x-to-slack-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(83, 100, 113);
+  transition: color 0.2s;
+}
+
+.x-to-slack-share-btn:hover .x-to-slack-icon {
+  color: rgb(29, 155, 240);
+}
+
+.x-to-slack-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  color: white;
+}
+
+.x-to-slack-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.x-to-slack-notification.success {
+  background-color: #36c5f0;
+}
+
+.x-to-slack-notification.error {
+  background-color: #e74c3c;
+}

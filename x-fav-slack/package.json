@@ -1,0 +1,15 @@
+{
+  "name": "x-to-slack-share",
+  "version": "1.0.0",
+  "description": "Chrome extension to share X posts to Slack",
+  "scripts": {
+    "build": "tsc && npm run copy-static",
+    "watch": "tsc -w",
+    "copy-static": "cp src/content.css dist/ && cp src/popup.html . && cp src/popup.css dist/",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.251",
+    "typescript": "^5.3.3"
+  }
+}
