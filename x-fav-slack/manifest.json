@@ -1,41 +1,49 @@
 {
   "manifest_version": 3,
-  "name": "X to Slack Share",
-  "version": "1.0.0",
-  "description": "Share X (Twitter) posts to Slack with one click",
+  "name": "Slack Share Button",
+  "version": "2.0.0",
+  "description": "Add Slack share button to any webpage",
   "permissions": [
     "storage",
     "activeTab",
     "scripting"
   ],
   "host_permissions": [
-    "https://x.com/*",
-    "https://twitter.com/*",
-    "https://hooks.slack.com/*"
+    "https://hooks.slack.com/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "dist/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "matches": ["<all_urls>"],
       "js": ["dist/content.js"],
-      "css": ["dist/content.css"]
+      "css": ["dist/content.css"],
+      "exclude_matches": [
+        "https://hooks.slack.com/*"
+      ]
     }
   ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/slack_icon.png",
+      "32": "icons/slack_icon.png",
+      "48": "icons/slack_icon.png",
+      "128": "icons/slack_icon.png"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
+    "16": "icons/slack_icon.png",
+    "32": "icons/slack_icon.png",
+    "48": "icons/slack_icon.png",
+    "128": "icons/slack_icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/slack_icon.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

@@ -40,79 +40,58 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function handleShareToSlack(data: {
-  tweetData: { text: string; author: string; url: string; sharedLinks: string[] };
+  pageData?: { title: string; url: string; description?: string };
+  tweetData?: { text: string; author: string; url: string; sharedLinks: string[] };
   webhookUrl: string;
   channel?: string;
 }): Promise<{ success: boolean; error?: string }> {
-  const { tweetData, webhookUrl, channel } = data;
+  const { pageData, tweetData, webhookUrl, channel } = data;
 
-  // Build message for shared links
-  let messageText = '';
-  const blocks: any[] = [];
+  let message: SlackMessage;
 
-  // Add header if there are shared links
-  if (tweetData.sharedLinks && tweetData.sharedLinks.length > 0) {
-    // Create simple message with links that Slack will unfurl
-    messageText = `📚 *${tweetData.author}* がXで共有した記事\n\n`;
+  if (pageData) {
+    // New format for general web pages
+    let messageText = `📚 *記事を共有しました*\n\n${pageData.url}\n`;
     
-    // Add links (Slack will automatically unfurl them)
-    tweetData.sharedLinks.forEach((link, index) => {
-      messageText += `${link}\n`;
-    });
-    
-    // Add tweet comment if exists
-    if (tweetData.text) {
-      const cleanText = tweetData.text.replace(/https?:\/\/[^\s]+/g, '').trim();
-      if (cleanText) {
-        messageText += `\n💬 _${cleanText}_\n`;
-      }
+    if (pageData.description) {
+      messageText += `\n_${pageData.description.substring(0, 200)}${pageData.description.length > 200 ? '...' : ''}_`;
     }
-    
-    // Add source link
-    messageText += `\n<${tweetData.url}|元のXポストを見る>`;
 
-    // Alternative block format (if unfurling doesn't work)
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: messageText
+    message = {
+      text: messageText,
+      unfurl_links: true,
+      unfurl_media: true
+    };
+  } else if (tweetData) {
+    // Legacy format for tweets (kept for backward compatibility)
+    let messageText = '';
+    if (tweetData.sharedLinks && tweetData.sharedLinks.length > 0) {
+      messageText = `📚 *${tweetData.author}* がXで共有した記事\n\n`;
+      tweetData.sharedLinks.forEach((link) => {
+        messageText += `${link}\n`;
+      });
+      if (tweetData.text) {
+        const cleanText = tweetData.text.replace(/https?:\/\/[^\s]+/g, '').trim();
+        if (cleanText) {
+          messageText += `\n💬 _${cleanText}_\n`;
+        }
       }
-    });
+      messageText += `\n<${tweetData.url}|元のXポストを見る>`;
+    } else {
+      messageText = `*${tweetData.author}* shared on X:\n${tweetData.text || '_[Tweet contains media only]_'}\n<${tweetData.url}|View on X>`;
+    }
+
+    message = {
+      text: messageText,
+      unfurl_links: true,
+      unfurl_media: true
+    };
   } else {
-    // Fallback to original format if no links found
-    blocks.push(
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `*${tweetData.author}* shared on X:`
-        }
-      },
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: tweetData.text || '_[Tweet contains media only]_'
-        }
-      },
-      {
-        type: 'context',
-        elements: [
-          {
-            type: 'mrkdwn',
-            text: `<${tweetData.url}|View on X>`
-          }
-        ]
-      }
-    );
+    return {
+      success: false,
+      error: 'No data to share'
+    };
   }
-
-  const message: SlackMessage = {
-    text: messageText || 'Shared from X',
-    unfurl_links: true,
-    unfurl_media: true
-  };
 
   if (channel) {
     message.channel = channel;

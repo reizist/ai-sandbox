@@ -3,6 +3,7 @@ class PopupManager {
     constructor() {
         this.webhookUrlInput = document.getElementById('webhook-url');
         this.channelInput = document.getElementById('channel');
+        this.buttonPositionSelect = document.getElementById('button-position');
         this.saveBtn = document.getElementById('save-btn');
         this.testBtn = document.getElementById('test-btn');
         this.statusMessage = document.getElementById('status-message');
@@ -13,12 +14,15 @@ class PopupManager {
         this.attachEventListeners();
     }
     async loadSettings() {
-        chrome.storage.sync.get(['webhookUrl', 'channel'], (result) => {
+        chrome.storage.sync.get(['webhookUrl', 'channel', 'buttonPosition'], (result) => {
             if (result.webhookUrl) {
                 this.webhookUrlInput.value = result.webhookUrl;
             }
             if (result.channel) {
                 this.channelInput.value = result.channel;
+            }
+            if (result.buttonPosition) {
+                this.buttonPositionSelect.value = result.buttonPosition;
             }
         });
     }
@@ -40,9 +44,11 @@ class PopupManager {
             return;
         }
         const channel = this.channelInput.value.trim();
+        const buttonPosition = this.buttonPositionSelect.value;
         chrome.storage.sync.set({
             webhookUrl,
-            channel
+            channel,
+            buttonPosition
         }, () => {
             this.showStatus('Settings saved successfully!', 'success');
         });

@@ -1,12 +1,13 @@
-# X to Slack Share Chrome Extension
+# Slack Share Button Chrome Extension
 
-X（Twitter）で気に入った投稿を簡単にSlackにシェアできるChrome拡張機能です。
+任意のWebページにSlackシェアボタンを追加し、気に入った記事を簡単にSlackで共有できるChrome拡張機能です。
 
 ## 機能
 
-- X上の投稿に「Slackにシェア」ボタンを追加
-- ワンクリックでSlackの指定チャンネルに投稿を共有
-- Slack Webhook URLによる簡単な設定
+- 🎯 **自動検出**: ソーシャルシェアボタンを自動検出し、その近くにSlackボタンを追加
+- 🎈 **フローティングボタン**: ソーシャルボタンがない場合は画面右下にフローティングボタンを表示
+- 📄 **メタデータ取得**: Open GraphやTwitter Cardのメタデータを活用して記事情報を取得
+- 🔗 **自動プレビュー**: SlackでURLが自動展開され、記事のプレビューが表示される
 
 ## セットアップ方法
 
@@ -49,9 +50,18 @@ npm run build
 
 ## 使い方
 
-1. X（https://x.com または https://twitter.com）にアクセス
-2. シェアしたい投稿の下部にSlackアイコンが表示される
-3. Slackアイコンをクリックすると自動的にSlackに投稿される
+### 方法1: ソーシャルシェアボタンの近くから
+
+多くのWebサイトでは、Twitter、Facebookなどのシェアボタンの近くに自動的にSlackボタンが追加されます。
+
+### 方法2: フローティングボタンから
+
+ソーシャルシェアボタンがないページでは、画面右下にSlackのフローティングボタンが表示されます。
+
+### Slackでの表示
+
+- 記事のURLが自動的に展開され、タイトルや画像のプレビューが表示されます
+- Open Graphメタデータがある場合は、より詳細な情報が表示されます
 
 ## 開発
 
@@ -62,8 +72,8 @@ x-fav-slack/
 ├── manifest.json       # Chrome拡張機能のマニフェスト
 ├── src/
 │   ├── background.ts   # バックグラウンドスクリプト（Slack API通信）
-│   ├── content.ts      # コンテンツスクリプト（X上でボタン追加）
-│   ├── content.css     # コンテンツスタイル
+│   ├── content.ts      # コンテンツスクリプト（ボタン追加ロジック）
+│   ├── content.css     # ボタンと通知のスタイル
 │   ├── popup.html      # 設定画面HTML
 │   ├── popup.ts        # 設定画面スクリプト
 │   └── popup.css       # 設定画面スタイル
@@ -85,10 +95,18 @@ npm run watch
 npm run clean
 ```
 
+## 動作サイト例
+
+- ブログ記事（Zenn、Qiita、note、はてなブログなど）
+- ニュースサイト
+- ドキュメントサイト
+- その他、任意のWebページ
+
 ## 注意事項
 
 - Webhook URLは安全に管理してください
-- 拡張機能はローカルでのみ動作します（Chrome Web Storeへの公開が必要な場合は別途申請が必要）
+- 一部のWebサイトでは、セキュリティポリシーにより動作しない場合があります
+- Chrome拡張機能の仕様上、chrome://ページやChrome Web Storeでは動作しません
 
 ## ライセンス
 
