@@ -17,6 +17,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ success: true });
         return true;
     }
+    if (request.action === 'getHistory') {
+        getShareHistory()
+            .then(history => sendResponse({ success: true, history }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+        return true;
+    }
+    if (request.action === 'clearHistory') {
+        clearShareHistory()
+            .then(() => sendResponse({ success: true }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+        return true;
+    }
+    if (request.action === 'deleteHistoryItem') {
+        deleteHistoryItem(request.id)
+            .then(() => sendResponse({ success: true }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+        return true;
+    }
 });
 async function handleShareToSlack(data) {
     const { pageData, tweetData, webhookUrl, channel } = data;
@@ -92,6 +110,15 @@ async function handleShareToSlack(data) {
         // Slack webhooks return "ok" on success
         if (responseText !== 'ok') {
             throw new Error(`Unexpected response: ${responseText}`);
+        }
+        // Save to history if successful
+        if (pageData) {
+            await saveToHistory({
+                url: pageData.url,
+                title: pageData.title,
+                description: pageData.description,
+                channel: channel
+            });
         }
         return { success: true };
     }
@@ -176,6 +203,35 @@ async function testSlackConnection(webhookUrl, channel) {
         };
     }
 }
+async function saveToHistory(data) {
+    const history = await getShareHistory();
+    const newEntry = {
+        id: Date.now().toString(),
+        url: data.url,
+        title: data.title,
+        description: data.description,
+        sharedAt: new Date().toISOString(),
+        channel: data.channel
+    };
+    // Add to beginning of array and limit to 100 items
+    history.unshift(newEntry);
+    if (history.length > 100) {
+        history.pop();
+    }
+    await chrome.storage.local.set({ shareHistory: history });
+}
+async function getShareHistory() {
+    const result = await chrome.storage.local.get('shareHistory');
+    return result.shareHistory || [];
+}
+async function clearShareHistory() {
+    await chrome.storage.local.set({ shareHistory: [] });
+}
+async function deleteHistoryItem(id) {
+    const history = await getShareHistory();
+    const filteredHistory = history.filter(item => item.id !== id);
+    await chrome.storage.local.set({ shareHistory: filteredHistory });
+}
 chrome.runtime.onInstalled.addListener(() => {
-    console.log('X to Slack Share extension installed');
+    console.log('Slack Share Button extension installed');
 });

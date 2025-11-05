@@ -17,6 +17,15 @@ interface SlackMessage {
   unfurl_media?: boolean;
 }
 
+interface ShareHistory {
+  id: string;
+  url: string;
+  title: string;
+  description?: string;
+  sharedAt: string;
+  channel?: string;
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'shareToSlack') {
     handleShareToSlack(request.data)
@@ -35,6 +44,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'openPopup') {
     chrome.action.openPopup();
     sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === 'getHistory') {
+    getShareHistory()
+      .then(history => sendResponse({ success: true, history }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
+  if (request.action === 'clearHistory') {
+    clearShareHistory()
+      .then(() => sendResponse({ success: true }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
+  if (request.action === 'deleteHistoryItem') {
+    deleteHistoryItem(request.id)
+      .then(() => sendResponse({ success: true }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
     return true;
   }
 });
@@ -123,6 +153,16 @@ async function handleShareToSlack(data: {
     // Slack webhooks return "ok" on success
     if (responseText !== 'ok') {
       throw new Error(`Unexpected response: ${responseText}`);
+    }
+
+    // Save to history if successful
+    if (pageData) {
+      await saveToHistory({
+        url: pageData.url,
+        title: pageData.title,
+        description: pageData.description,
+        channel: channel
+      });
     }
 
     return { success: true };
@@ -215,6 +255,46 @@ async function testSlackConnection(
   }
 }
 
+async function saveToHistory(data: {
+  url: string;
+  title: string;
+  description?: string;
+  channel?: string;
+}): Promise<void> {
+  const history = await getShareHistory();
+  const newEntry: ShareHistory = {
+    id: Date.now().toString(),
+    url: data.url,
+    title: data.title,
+    description: data.description,
+    sharedAt: new Date().toISOString(),
+    channel: data.channel
+  };
+
+  // Add to beginning of array and limit to 100 items
+  history.unshift(newEntry);
+  if (history.length > 100) {
+    history.pop();
+  }
+
+  await chrome.storage.local.set({ shareHistory: history });
+}
+
+async function getShareHistory(): Promise<ShareHistory[]> {
+  const result = await chrome.storage.local.get('shareHistory');
+  return result.shareHistory || [];
+}
+
+async function clearShareHistory(): Promise<void> {
+  await chrome.storage.local.set({ shareHistory: [] });
+}
+
+async function deleteHistoryItem(id: string): Promise<void> {
+  const history = await getShareHistory();
+  const filteredHistory = history.filter(item => item.id !== id);
+  await chrome.storage.local.set({ shareHistory: filteredHistory });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('X to Slack Share extension installed');
+  console.log('Slack Share Button extension installed');
 });
