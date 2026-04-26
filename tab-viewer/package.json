@@ -1,0 +1,37 @@
+{
+  "name": "tab-viewer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "fetch": "tsx scripts/fetch-tab.ts",
+    "fetch:artist": "tsx scripts/fetch-artist.ts",
+    "fetch:chord": "tsx scripts/fetch-chord.ts",
+    "build:catalog": "tsx scripts/build-catalog.ts",
+    "migrate:filenames": "tsx scripts/migrate-filenames.ts",
+    "test:chords": "tsx scripts/test-chord-utils.ts",
+    "fetch:discography": "tsx scripts/fetch-discography.ts",
+    "fetch:by-discography": "tsx scripts/fetch-by-discography.ts",
+    "fetch:ufret": "tsx scripts/fetch-ufret-by-discography.ts",
+    "collect:many": "tsx scripts/collect-many.ts",
+    "probe:ug": "tsx scripts/ultimate-guitar/probe.ts",
+    "fetch:ug": "tsx scripts/fetch-ug-by-discography.ts",
+    "fetch:ghibli": "tsx scripts/fetch-ghibli.ts",
+    "fetch:yt-refs": "tsx scripts/fetch-youtube-refs.ts"
+  },
+  "devDependencies": {
+    "@coderline/alphatab-vite": "^1.8.2",
+    "@tailwindcss/vite": "^4.2.4",
+    "playwright": "^1.59.1",
+    "tailwindcss": "^4.2.4",
+    "tsx": "^4.21.0",
+    "typescript": "~6.0.2",
+    "vite": "^7.3.2"
+  },
+  "dependencies": {
+    "@coderline/alphatab": "^1.8.2"
+  }
+}
