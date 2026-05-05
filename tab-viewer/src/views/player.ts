@@ -12,10 +12,16 @@ import { transformChord, type ChordTransformOptions, type Accidental } from '../
 import { renderChordDiagram } from '../chord-diagram';
 import { playChordByName, setAudioEnabled } from '../chord-audio';
 import { searchYouTubeAdHoc, type RankedRef } from '../youtube-search';
+import { renderFretboard, type LayerKey } from '../fretboard';
+import {
+  bestKey, defaultScaleForKey, keyLabel, SCALE_LABELS_JA,
+  SHARP_NAMES, FLAT_NAMES,
+  type ScaleId, type Display as NoteDisplay, type Mode as KeyMode,
+} from '../music-theory';
 
 let activeApi: alphaTab.AlphaTabApi | null = null;
 
-type LayoutMode = 'tab' | 'chords' | 'both' | 'videos';
+type LayoutMode = 'tab' | 'chords' | 'both' | 'videos' | 'fretboard';
 
 interface ChordSettings {
   capo: number;
@@ -60,6 +66,46 @@ function saveLayoutPref(m: LayoutMode): void {
   try { localStorage.setItem(LAYOUT_KEY, m); } catch { /* noop */ }
 }
 
+interface FretboardSettings {
+  rootClass: number;       // 0..11
+  mode: KeyMode;           // major / minor (used for default-scale-for-key)
+  scale: ScaleId;
+  display: NoteDisplay;
+  layers: { treble: boolean; mid: boolean; bass: boolean };
+  showAllNotes: boolean;
+  startFret: number;
+  endFret: number;
+  /** True iff the current settings should auto-update from the song's
+   * detected key. False once the user has overridden the key picker. */
+  autoFollowKey: boolean;
+}
+
+const DEFAULT_FRETBOARD: FretboardSettings = {
+  rootClass: 0,
+  mode: 'major',
+  scale: 'major',
+  display: 'doremi-fixed',
+  layers: { treble: true, mid: true, bass: true },
+  showAllNotes: false,
+  startFret: 0,
+  endFret: 15,
+  autoFollowKey: true,
+};
+
+const FB_KEY = 'tab-viewer.fretboard.v1';
+
+function loadFretboardSettings(): FretboardSettings {
+  try {
+    const raw = localStorage.getItem(FB_KEY);
+    if (raw) return { ...DEFAULT_FRETBOARD, ...JSON.parse(raw) };
+  } catch { /* noop */ }
+  return { ...DEFAULT_FRETBOARD };
+}
+
+function saveFretboardSettings(s: FretboardSettings): void {
+  try { localStorage.setItem(FB_KEY, JSON.stringify(s)); } catch { /* noop */ }
+}
+
 interface PlayerState {
   artist: CatalogArtist;
   song: CatalogSong;
@@ -68,6 +114,9 @@ interface PlayerState {
   tabUrl: string | null;
   layout: LayoutMode;
   settings: ChordSettings;
+  fretboard: FretboardSettings;
+  /** Auto-detected key from chord progression, or null if unknown. */
+  detectedKey: { rootClass: number; mode: KeyMode } | null;
   /** Auto-scroll state. */
   transport: {
     playing: boolean;
@@ -167,6 +216,16 @@ export async function renderPlayer(
   })();
 
   const transportInit = loadTransportSettings();
+  const fretboardInit = loadFretboardSettings();
+  // Auto-detect the song's key from its chord progression, if any.
+  const chordList = chords ? collectChordSymbols(chords) : [];
+  const detected = chordList.length ? bestKey(chordList) : null;
+  if (detected && fretboardInit.autoFollowKey) {
+    fretboardInit.rootClass = detected.rootClass;
+    fretboardInit.mode = detected.mode;
+    fretboardInit.scale = defaultScaleForKey(detected);
+  }
+
   const state: PlayerState = {
     artist,
     song,
@@ -175,6 +234,8 @@ export async function renderPlayer(
     tabUrl,
     layout: initialLayout,
     settings: loadChordSettings(),
+    fretboard: fretboardInit,
+    detectedKey: detected ? { rootClass: detected.rootClass, mode: detected.mode } : null,
     transport: {
       playing: false,
       basePxPerSec: transportInit.basePxPerSec,
@@ -187,6 +248,7 @@ export async function renderPlayer(
 
   renderShell(view, state);
   wireControls(view, state);
+  wireFretboardPanel(view, state);
   applyLayout(view, state);
   refreshChords(view, state);
   if (tabUrl) mountTab(view, state);
@@ -216,6 +278,7 @@ function renderShell(view: HTMLElement, state: PlayerState): void {
     ? `<button data-layout="both" class="${state.layout === 'both' ? 'active' : ''}">Both</button>` : '';
   const videosBtn = hasVideos
     ? `<button data-layout="videos" class="${state.layout === 'videos' ? 'active' : ''}">Videos</button>` : '';
+  const scaleBtn = `<button data-layout="fretboard" class="${state.layout === 'fretboard' ? 'active' : ''}" title="指板スケール表示">Scale</button>`;
 
   const credit = song.originalArtist && song.originalArtist !== artist.name
     ? ` · 原曲: ${escapeHtml(song.originalArtist)}` : '';
@@ -232,7 +295,7 @@ function renderShell(view: HTMLElement, state: PlayerState): void {
           <h2>${escapeHtml(song.title)}</h2>
           <p class="muted">${escapeHtml(artist.name)}${song.trackCount ? ` · ${song.trackCount} tracks` : ''}${credit}</p>
         </div>
-        <div class="layout-switch">${tabBtn}${chBtn}${bothBtn}${videosBtn}</div>
+        <div class="layout-switch">${tabBtn}${chBtn}${bothBtn}${scaleBtn}${videosBtn}</div>
       </header>
 
       ${chords ? renderChordControlsBar(state) : ''}
@@ -262,9 +325,177 @@ function renderShell(view: HTMLElement, state: PlayerState): void {
             <div id="videos-host" class="videos-host">${renderVideos(song.youtubeRefs ?? [])}</div>
           </div>
         </div>
+        <div class="pane pane-fretboard" data-visible="${state.layout === 'fretboard'}">
+          <div class="pane-header">SCALE / 指板</div>
+          <div class="pane-content">
+            ${renderFretboardPanel(state)}
+          </div>
+        </div>
       </div>
     </section>
   `;
+}
+
+/* =============== Fretboard panel (Scale layout) =============== */
+
+function collectChordSymbols(chords: ChordsFile): string[] {
+  const out: string[] = [];
+  for (const line of chords.lines) {
+    for (const seg of line.segments) {
+      if (seg.chord) out.push(seg.chord);
+    }
+  }
+  return out;
+}
+
+const SCALE_OPTIONS: ScaleId[] = [
+  'major', 'natural_minor', 'harmonic_minor', 'melodic_minor',
+  'pentatonic_major', 'pentatonic_minor', 'blues',
+  'dorian', 'phrygian', 'lydian', 'mixolydian', 'locrian',
+];
+
+const DISPLAY_OPTIONS: { id: NoteDisplay; label: string }[] = [
+  { id: 'doremi-fixed',   label: 'ドレミ (固定ド)' },
+  { id: 'doremi-movable', label: 'ドレミ (移動ド)' },
+  { id: 'name-sharp',     label: 'ノート名 (♯)' },
+  { id: 'name-flat',      label: 'ノート名 (♭)' },
+  { id: 'degree',         label: '度数' },
+  { id: 'interval',       label: 'インターバル' },
+];
+
+function renderFretboardPanel(state: PlayerState): string {
+  const fb = state.fretboard;
+  const detectedLabel = state.detectedKey
+    ? keyLabel({ ...state.detectedKey, score: 0 })
+    : '— (コード情報なし)';
+  const rootName = SHARP_NAMES[fb.rootClass];
+
+  const rootOptions = SHARP_NAMES.map((n, i) => `<option value="${i}" ${i === fb.rootClass ? 'selected' : ''}>${n}${FLAT_NAMES[i] !== n ? ` / ${FLAT_NAMES[i]}` : ''}</option>`).join('');
+  const scaleOptions = SCALE_OPTIONS.map((s) => `<option value="${s}" ${s === fb.scale ? 'selected' : ''}>${SCALE_LABELS_JA[s]}</option>`).join('');
+  const dispOptions = DISPLAY_OPTIONS.map((d) => `<option value="${d.id}" ${d.id === fb.display ? 'selected' : ''}>${d.label}</option>`).join('');
+
+  return `
+    <div class="fb-panel flex flex-col grow min-h-0">
+      <div class="fb-controls flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-surface-soft)]">
+        <div class="fb-key-info flex items-center gap-2 text-[13px]">
+          <span class="text-[var(--color-fg-soft)]">推定キー:</span>
+          <span class="font-bold text-[var(--color-accent)]">${escapeHtml(detectedLabel)}</span>
+          ${state.detectedKey ? `<button id="fb-use-detected" type="button" class="text-[11.5px] px-2 py-0.5 rounded border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors">推定値を反映</button>` : ''}
+        </div>
+        <label class="fb-ctl flex items-center gap-1.5 text-[13px]">
+          <span class="text-[var(--color-fg-soft)]">ルート</span>
+          <select id="fb-root" class="px-2 py-1 rounded border border-[var(--color-border)] bg-transparent text-[13px]">${rootOptions}</select>
+        </label>
+        <label class="fb-ctl flex items-center gap-1.5 text-[13px]">
+          <span class="text-[var(--color-fg-soft)]">スケール</span>
+          <select id="fb-scale" class="px-2 py-1 rounded border border-[var(--color-border)] bg-transparent text-[13px]">${scaleOptions}</select>
+        </label>
+        <label class="fb-ctl flex items-center gap-1.5 text-[13px]">
+          <span class="text-[var(--color-fg-soft)]">表記</span>
+          <select id="fb-display" class="px-2 py-1 rounded border border-[var(--color-border)] bg-transparent text-[13px]">${dispOptions}</select>
+        </label>
+        <div class="fb-layers flex items-center gap-1.5 text-[13px]">
+          <span class="text-[var(--color-fg-soft)]">レイヤー</span>
+          <button data-layer="treble" type="button" class="fb-layer-btn px-2.5 py-1 rounded text-[12px] border ${fb.layers.treble ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white font-semibold' : 'border-[var(--color-border)] text-[var(--color-fg-soft)]'}">Treble (1-2)</button>
+          <button data-layer="mid"    type="button" class="fb-layer-btn px-2.5 py-1 rounded text-[12px] border ${fb.layers.mid ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white font-semibold' : 'border-[var(--color-border)] text-[var(--color-fg-soft)]'}">Mid (3-4)</button>
+          <button data-layer="bass"   type="button" class="fb-layer-btn px-2.5 py-1 rounded text-[12px] border ${fb.layers.bass ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white font-semibold' : 'border-[var(--color-border)] text-[var(--color-fg-soft)]'}">Bass (5-6)</button>
+        </div>
+        <label class="fb-ctl flex items-center gap-1.5 text-[13px] cursor-pointer">
+          <input id="fb-all" type="checkbox" ${fb.showAllNotes ? 'checked' : ''}/>
+          <span class="text-[var(--color-fg-soft)]">スケール外も表示</span>
+        </label>
+        <div class="ml-auto text-[12px] text-[var(--color-fg-muted)]">
+          ${escapeHtml(rootName)} ${escapeHtml(SCALE_LABELS_JA[fb.scale])} · ${fb.endFret - fb.startFret + 1}フレット
+        </div>
+      </div>
+
+      <div class="fb-legend flex items-center gap-4 px-4 py-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] text-[11.5px] text-[var(--color-fg-soft)]">
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:rgba(244,63,94,0.95)"></span>ルート</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:rgba(168,85,247,0.88)"></span>3度</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:rgba(34,197,94,0.88)"></span>5度</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:rgba(74,142,255,0.88)"></span>その他スケール内</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:rgba(120,120,135,0.55)"></span>スケール外</span>
+      </div>
+
+      <div id="fb-host" class="fb-host grow min-h-0 overflow-auto bg-[var(--color-surface)] p-4"
+        style="--fb-bg: var(--color-surface-muted);">
+        ${renderFretboard({
+          startFret: fb.startFret, endFret: fb.endFret,
+          rootClass: fb.rootClass, scale: fb.scale, display: fb.display,
+          layers: fb.layers, showAllNotes: fb.showAllNotes,
+        })}
+      </div>
+    </div>
+  `;
+}
+
+function refreshFretboard(view: HTMLElement, state: PlayerState): void {
+  const host = view.querySelector<HTMLElement>('#fb-host');
+  if (!host) return;
+  host.innerHTML = renderFretboard({
+    startFret: state.fretboard.startFret,
+    endFret: state.fretboard.endFret,
+    rootClass: state.fretboard.rootClass,
+    scale: state.fretboard.scale,
+    display: state.fretboard.display,
+    layers: state.fretboard.layers,
+    showAllNotes: state.fretboard.showAllNotes,
+  });
+}
+
+function wireFretboardPanel(view: HTMLElement, state: PlayerState): void {
+  const root = view.querySelector<HTMLSelectElement>('#fb-root');
+  const scale = view.querySelector<HTMLSelectElement>('#fb-scale');
+  const display = view.querySelector<HTMLSelectElement>('#fb-display');
+  const all = view.querySelector<HTMLInputElement>('#fb-all');
+  const useDetected = view.querySelector<HTMLButtonElement>('#fb-use-detected');
+
+  root?.addEventListener('change', () => {
+    state.fretboard.rootClass = parseInt(root.value, 10);
+    state.fretboard.autoFollowKey = false;
+    saveFretboardSettings(state.fretboard);
+    refreshFretboard(view, state);
+  });
+  scale?.addEventListener('change', () => {
+    state.fretboard.scale = scale.value as ScaleId;
+    state.fretboard.autoFollowKey = false;
+    saveFretboardSettings(state.fretboard);
+    refreshFretboard(view, state);
+  });
+  display?.addEventListener('change', () => {
+    state.fretboard.display = display.value as NoteDisplay;
+    saveFretboardSettings(state.fretboard);
+    refreshFretboard(view, state);
+  });
+  all?.addEventListener('change', () => {
+    state.fretboard.showAllNotes = all.checked;
+    saveFretboardSettings(state.fretboard);
+    refreshFretboard(view, state);
+  });
+  useDetected?.addEventListener('click', () => {
+    if (!state.detectedKey) return;
+    state.fretboard.rootClass = state.detectedKey.rootClass;
+    state.fretboard.mode = state.detectedKey.mode;
+    state.fretboard.scale = state.detectedKey.mode === 'major' ? 'major' : 'natural_minor';
+    state.fretboard.autoFollowKey = true;
+    saveFretboardSettings(state.fretboard);
+    if (root) root.value = String(state.fretboard.rootClass);
+    if (scale) scale.value = state.fretboard.scale;
+    refreshFretboard(view, state);
+  });
+  view.querySelectorAll<HTMLButtonElement>('.fb-layer-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.layer as LayerKey;
+      state.fretboard.layers[key] = !state.fretboard.layers[key];
+      saveFretboardSettings(state.fretboard);
+      // Toggle button visual
+      const on = state.fretboard.layers[key];
+      btn.className = `fb-layer-btn px-2.5 py-1 rounded text-[12px] border ${on
+        ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white font-semibold'
+        : 'border-[var(--color-border)] text-[var(--color-fg-soft)]'}`;
+      refreshFretboard(view, state);
+    });
+  });
 }
 
 function renderTransportBar(state: PlayerState): string {
@@ -1016,6 +1247,8 @@ function applyLayout(view: HTMLElement, state: PlayerState): void {
     'data-visible', String(state.layout === 'chords' || state.layout === 'both'));
   view.querySelector<HTMLElement>('.pane-videos')?.setAttribute(
     'data-visible', String(state.layout === 'videos'));
+  view.querySelector<HTMLElement>('.pane-fretboard')?.setAttribute(
+    'data-visible', String(state.layout === 'fretboard'));
 }
 
 function mountTab(view: HTMLElement, state: PlayerState): void {
